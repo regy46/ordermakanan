@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cafe Premium Order</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #0f0f0f;
+    color: white;
+}
+
+.header {
+    padding: 20px;
+    background: #111;
+    border-bottom: 2px solid #ffd700;
+}
+
+.header h2 {
+    color: #ffd700;
+    margin: 0;
+}
+
+.container { padding: 15px; }
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: none;
+    background: #1a1a1a;
+    color: white;
+}
+
+.menu-item {
+    display: flex;
+    background: #1a1a1a;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    align-items: center;
+}
+
+.menu-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    margin-right: 10px;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.123);
+}
+
+.menu-info { flex: 1; }
+
+.menu-price { color: #ffd700; }
+
+.qty-control button {
+    background: #ffd700;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+/* LIST PESANAN */
+.cart-box {
+    margin: 15px;
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* TOTAL */
+.total-box {
+    text-align: right;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+/* BUTTON */
+button.order {
+    width: 100%;
+    padding: 15px;
+    background: #ffd700;
+    border: none;
+    font-weight: bold;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>ORDER MAKANAN</h2>
+</div>
+
+<div class="container">
+
+<input id="nama" placeholder="Nama">
+<input id="meja" placeholder="Nomor Meja">
+
+<!-- MENU -->
+
+<div class="menu-item">
+<img class="menu-img" src="OIP2.jpeg">
+<div class="menu-info">
+<b>Nasi Goreng</b>
+<div class="menu-price">20.000</div>
+</div>
+<div class="qty-control">
+<button onclick="kurang('nasigoreng')">-</button>
+<span id="qty-nasigoreng">0</span>
+<button onclick="tambah('nasigoreng','Nasi Goreng',20000)">+</button>
+</div>
+</div>
+
+<div class="menu-item">
+<img class="menu-img" src="OIP.jpeg">
+<div class="menu-info">
+<b>Es Teh</b>
+<div class="menu-price">5.000</div>
+</div>
+<div class="qty-control">
+<button onclick="kurang('esteh')">-</button>
+<span id="qty-esteh">0</span>
+<button onclick="tambah('esteh','Es Teh',5000)">+</button>
+</div>
+</div>
+
+<div class="menu-item">
+<img class="menu-img" src="OIP (1).jpeg">
+<div class="menu-info">
+<b>Ayam Geprek</b>
+<div class="menu-price">25.000</div>
+</div>
+<div class="qty-control">
+<button onclick="kurang('ayamgeprek')">-</button>
+<span id="qty-ayamgeprek">0</span>
+<button onclick="tambah('ayamgeprek','Ayam Geprek',25000)">+</button>
+</div>
+</div>
+
+</div>
+
+<!-- LIST PESANAN -->
+<div class="cart-box">
+<h3>Pesanan Kamu</h3>
+<div id="cartItems">Belum ada pesanan</div>
+<div class="total-box" id="total">Total: 0</div>
+
+<button class="order" onclick="kirim()">Pesan Sekarang</button>
+</div>
+
+<script>
+let cart = {};
+
+function tambah(id, nama, harga) {
+    if (!cart[id]) {
+        cart[id] = { nama, qty: 1, harga };
+    } else {
+        cart[id].qty++;
+    }
+    render();
+}
+
+function kurang(id) {
+    if (cart[id]) {
+        cart[id].qty--;
+        if (cart[id].qty <= 0) delete cart[id];
+    }
+    render();
+}
+
+function render() {
+    let el = document.getElementById("cartItems");
+    let total = 0;
+
+    if (Object.keys(cart).length === 0) {
+        el.innerHTML = "Belum ada pesanan";
+        document.getElementById("total").innerText = "Total: 0";
+        return;
+    }
+
+    el.innerHTML = "";
+
+    for (let key in cart) {
+        let item = cart[key];
+        let sub = item.qty * item.harga;
+        total += sub;
+
+        el.innerHTML += `
+        <div class="cart-item">
+            <span>${item.nama} x${item.qty}</span>
+            <span>${sub}</span>
+        </div>`;
+    }
+
+    document.getElementById("total").innerText = "Total: " + total;
+}
+
+function kirim() {
+    let nama = document.getElementById("nama").value;
+    let meja = document.getElementById("meja").value;
+
+    if (!nama || !meja || Object.keys(cart).length === 0) {
+        alert("Lengkapi dulu!");
+        return;
+    }
+
+    let text = `🧾 ORDER BARU\n\nNama: ${nama}\nMeja: ${meja}\n\nPesanan:\n`;
+    let total = 0;
+
+    for (let key in cart) {
+        let item = cart[key];
+        let sub = item.qty * item.harga;
+        total += sub;
+
+        text += `- ${item.nama} x${item.qty} = ${sub}\n`;
+    }
+
+    text += `\nTotal: ${total}`;
+
+    let url = `https://wa.me/6285169872781?text=${encodeURIComponent(text)}`;
+    window.open(url);
+}
+</script>
+
+</body>
+</html>
